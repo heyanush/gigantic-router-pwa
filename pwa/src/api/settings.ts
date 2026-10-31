@@ -22,12 +22,13 @@ export interface BackendSettings {
 const KEY = 'gigantic.backend';
 const DEV = import.meta.env.DEV;
 
-// In dev, default to the Vite proxy so you can test against a QA box without CORS.
-// In production builds, defaults are blank — the user sets the live endpoint in Settings
-// (or bake one in at build time via VITE_PORTAL_API / VITE_UDM_API).
+// Both dev (Vite proxy) and prod (Cloudflare Pages Functions) expose the portal under the
+// same-origin paths /portal and /udm, so the app never makes a cross-origin call. The real
+// portal host lives server-side (dev: VITE_PORTAL_ORIGIN; prod: the PORTAL_ORIGIN env var).
+// Adjust the path portion here or in Settings if your portal's PortalApi lives elsewhere.
 const defaults: BackendSettings = {
-  portalApi: import.meta.env.VITE_PORTAL_API ?? (DEV ? '/portal/qabuild/PortalApi/' : ''),
-  udmApi: import.meta.env.VITE_UDM_API ?? (DEV ? '/udm/qabuild/api/h8UDMProxy.ashx/' : ''),
+  portalApi: import.meta.env.VITE_PORTAL_API ?? (DEV ? '/portal/qabuild/PortalApi/' : '/portal/PortalApi/'),
+  udmApi: import.meta.env.VITE_UDM_API ?? (DEV ? '/udm/qabuild/api/h8UDMProxy.ashx/' : '/udm/api/h8UDMProxy.ashx/'),
   systemId: import.meta.env.VITE_SYSTEM_ID ?? '',
   systemPass: import.meta.env.VITE_SYSTEM_PASS ?? '',
   centralApiKey: import.meta.env.VITE_CENTRAL_API_KEY ?? '',

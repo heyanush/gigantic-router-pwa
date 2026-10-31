@@ -26,11 +26,37 @@ npm run build
 npm run preview
 ```
 
-## Hosting (GitHub Pages)
+## Hosting (Cloudflare Pages — recommended, works against a live portal)
+
+GitHub Pages is static with no proxy, so a browser there hits CORS calling a real portal.
+Cloudflare Pages bundles **Pages Functions**, so the frontend and a same-origin reverse proxy
+live on one domain — the browser calls `/portal/*` and `/udm/*` on its own origin (no CORS,
+no mixed content), and the function forwards to the portal server-side. The portal host stays
+out of the public bundle.
+
+**Deploy (dashboard, ~2 min):**
+1. [dash.cloudflare.com](https://dash.cloudflare.com) → **Workers & Pages → Create → Pages →
+   Connect to Git** → pick `gigantic-router-pwa`.
+2. Build settings:
+   - Build command: `cd pwa && npm install && npm run build`
+   - Build output directory: `pwa/dist`
+   - Root directory: `/` (the `functions/` proxy is auto-detected here)
+3. **Settings → Environment variables** → add `PORTAL_ORIGIN` = your portal host,
+   e.g. `https://selfcare.example.com` (no trailing path).
+4. Save & Deploy. Site: `https://<project>.pages.dev`.
+
+The app then calls `/portal/PortalApi/` and `/udm/api/h8UDMProxy.ashx/` same-origin; the function
+rewrites those to `${PORTAL_ORIGIN}/PortalApi/` etc. If your portal's PortalApi path differs,
+change it in **⚙︎ Settings** (path only — the host is the server-side env var).
+
+> Files: `functions/_proxy.js`, `functions/portal/[[path]].js`, `functions/udm/[[path]].js`,
+> and `pwa/public/_redirects` (SPA fallback).
+
+### Hosting (GitHub Pages — demo shell only)
 
 Pushing to `main` triggers `.github/workflows/deploy.yml`, which builds under the repo subpath
-and deploys to Pages. Enable once: repo **Settings → Pages → Source: GitHub Actions**. No backend
-or secrets are baked in — the deployed site prompts for your portal URL on first load.
+and deploys to Pages. No backend is baked in. Note: Pages is static (no proxy), so it **cannot
+reach a real portal from the browser** (CORS) — it's a UI preview, not a working deployment.
 
 Live URL: `https://<user>.github.io/<repo>/`.
 
