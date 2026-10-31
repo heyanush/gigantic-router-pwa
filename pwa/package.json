@@ -1,0 +1,26 @@
+{
+  "name": "gigantic-router-pwa",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "PWA to manage the WiFi modem/router via the h8 ISP portal (PortalApi + UDM/ACS)",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "react-router-dom": "6.26.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "@types/react": "18.3.12",
+    "@types/react-dom": "18.3.1",
+    "@vitejs/plugin-react": "4.3.3",
+    "typescript": "5.6.3",
+    "vite": "5.4.11",
+    "vite-plugin-pwa": "0.20.5"
+  }
+}
