@@ -33,16 +33,10 @@ export default function Settings({ onClose }: { onClose: () => void }) {
     <div className="modal-backdrop" onClick={onClose}>
       <div className="modal" onClick={(e) => e.stopPropagation()}>
         <h2>Backend settings</h2>
-        <p className="hint">Point the app at a live portal and flip mock/live. Saved on this device.</p>
+        <p className="hint">Point the app at your portal. Saved on this device.</p>
 
-        <label>Data source</label>
-        <select value={s.useMock ? 'mock' : 'live'} onChange={(e) => set('useMock', e.target.value === 'mock')}>
-          <option value="mock">Demo (mock data)</option>
-          <option value="live">Live portal</option>
-        </select>
-
-        <div className="banner" style={{ marginTop: 10 }}>
-          Live mode calls the portal directly from the browser. The portal must be <strong>HTTPS</strong>
+        <div className="banner">
+          The app calls the portal directly from the browser. The portal must be <strong>HTTPS</strong>
           and send <strong>CORS</strong> headers allowing this site's origin.
         </div>
 

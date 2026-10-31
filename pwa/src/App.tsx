@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { NavLink, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { useAuth } from './auth';
-import { USE_MOCK } from './api';
 import Login from './screens/Login';
 import Wifi from './screens/Wifi';
 import Devices from './screens/Devices';
@@ -32,7 +31,6 @@ function Shell() {
       {settingsOpen && <Settings onClose={() => setSettingsOpen(false)} />}
 
       <main className="content">
-        {USE_MOCK && <div className="banner">Demo mode — mock router data. Set <code>VITE_USE_MOCK=false</code> on the ISP network to use the live portal.</div>}
         <Routes>
           <Route path="/wifi" element={<Wifi />} />
           <Route path="/devices" element={<Devices />} />

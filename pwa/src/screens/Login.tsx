@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { api, USE_MOCK } from '../api';
+import { api, isConfigured } from '../api';
 import type { LoginType } from '../api/config';
 import { useAuth } from '../auth';
+import Settings from './Settings';
 
 export default function Login() {
   const { setSession } = useAuth();
@@ -13,8 +14,10 @@ export default function Login() {
   const [otpSent, setOtpSent] = useState(false);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   const isOtp = mode === 'mobileWithOtp';
+  const configured = isConfigured();
 
   async function sendOtp() {
     setErr(null); setBusy(true);
@@ -42,8 +45,17 @@ export default function Login() {
 
   return (
     <div className="app">
-      <header className="topbar"><h1>Gigantic Router Manager</h1></header>
+      <header className="topbar">
+        <h1>Gigantic Router Manager</h1>
+        <button onClick={() => setSettingsOpen(true)} aria-label="Settings">⚙︎</button>
+      </header>
+      {settingsOpen && <Settings onClose={() => setSettingsOpen(false)} />}
       <main className="content">
+        {!configured && (
+          <div className="banner">
+            No portal configured. Open <strong>⚙︎ Settings</strong> and enter your portal URLs to sign in.
+          </div>
+        )}
         <div className="card">
           <h2>Sign in</h2>
           <p className="hint">Manage your WiFi, connected devices, and router — right from the browser.</p>
@@ -86,8 +98,6 @@ export default function Login() {
               </button>
             )}
           </form>
-
-          {USE_MOCK && <p className="hint" style={{ marginTop: 14 }}>Demo: any mobile, OTP <strong>123456</strong>.</p>}
         </div>
       </main>
     </div>

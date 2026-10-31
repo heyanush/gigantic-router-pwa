@@ -6,7 +6,6 @@
 // this site's origin. In dev, the Vite proxy (/portal, /udm) handles CORS for you.
 
 export interface BackendSettings {
-  useMock: boolean;
   /** Full URL to the PortalApi handler, e.g. https://portal.example.com/PortalApi/ */
   portalApi: string;
   /** Full URL to the UDM/ACS proxy, e.g. https://portal.example.com/api/h8UDMProxy.ashx/ */
@@ -27,7 +26,6 @@ const DEV = import.meta.env.DEV;
 // In production builds, defaults are blank — the user sets the live endpoint in Settings
 // (or bake one in at build time via VITE_PORTAL_API / VITE_UDM_API).
 const defaults: BackendSettings = {
-  useMock: (import.meta.env.VITE_USE_MOCK ?? 'true') !== 'false',
   portalApi: import.meta.env.VITE_PORTAL_API ?? (DEV ? '/portal/qabuild/PortalApi/' : ''),
   udmApi: import.meta.env.VITE_UDM_API ?? (DEV ? '/udm/qabuild/api/h8UDMProxy.ashx/' : ''),
   systemId: import.meta.env.VITE_SYSTEM_ID ?? '',

@@ -1,14 +1,19 @@
-import { USE_MOCK } from './config';
-import { mockApi } from './mockApi';
 import { realApi, pingBackend } from './realApi';
+import { config } from './config';
 import type { RouterApi } from './RouterApi';
 
-export const api: RouterApi = USE_MOCK ? mockApi : realApi;
-export { USE_MOCK, pingBackend };
+export const api: RouterApi = realApi;
+export { pingBackend };
+export { config };
 export { getSettings, saveSettings } from './settings';
 export type { BackendSettings } from './settings';
 export type { RouterApi } from './RouterApi';
 export * from './types';
+
+/** True once a live portal endpoint has been configured (Settings or build-time env). */
+export function isConfigured(): boolean {
+  return Boolean(config.portalURL);
+}
 
 /** Poll an ACS job until it leaves CREATED/RUNNING (or times out). */
 export async function waitForJob(

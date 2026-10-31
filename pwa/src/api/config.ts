@@ -25,10 +25,6 @@ export const config = {
   deviceQueryOverride: s.deviceQueryOverride,
 } as const;
 
-// In-memory mock backend instead of real HTTP. Default ON so the public demo runs with no
-// backend. Toggle in Settings or via VITE_USE_MOCK.
-export const USE_MOCK = s.useMock;
-
 export type LoginType =
   | 'userNameWithPassword'
   | 'mobileWithPassword'

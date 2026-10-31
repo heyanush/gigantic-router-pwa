@@ -9,7 +9,14 @@ connected devices, and reboot/status. Built from the contract reverse-engineered
 ```bash
 cd pwa
 npm install
-npm run dev        # http://localhost:5173  (demo/mock mode by default)
+npm run dev        # http://localhost:5173
+```
+
+The app is **live-only** — it talks to a real portal, no mock/demo mode. In dev, the Vite proxy
+(`/portal`, `/udm`) forwards to `VITE_PORTAL_ORIGIN` so you can test against a backend without CORS:
+
+```bash
+VITE_PORTAL_ORIGIN=https://portal.example.com npm run dev
 ```
 
 Build / preview:
@@ -22,8 +29,8 @@ npm run preview
 ## Hosting (GitHub Pages)
 
 Pushing to `main` triggers `.github/workflows/deploy.yml`, which builds under the repo subpath
-and deploys to Pages. Enable once: repo **Settings → Pages → Source: GitHub Actions**. The site
-serves in **demo/mock mode** (no backend, no secrets baked in).
+and deploys to Pages. Enable once: repo **Settings → Pages → Source: GitHub Actions**. No backend
+or secrets are baked in — the deployed site prompts for your portal URL on first load.
 
 Live URL: `https://<user>.github.io/<repo>/`.
 
@@ -36,31 +43,13 @@ from the browser. Two backend-side requirements (you control these):
 2. **CORS** — the portal must send `Access-Control-Allow-Origin` for the Pages origin
    (and allow the `Authorization`, `Content-Type`, `centralApiKey` headers + `POST`/`GET`).
 
-Then on the device: open **⚙︎ Settings → Live**, paste your Portal API URL and UDM proxy URL
-(full `https://…` URLs), **Test connection**, and sign in. Nothing is hardcoded — or bake defaults
-at build time with `VITE_PORTAL_API` / `VITE_UDM_API` (and `VITE_USE_MOCK=false`).
+Then on the device: open **⚙︎ Settings**, paste your Portal API URL and UDM proxy URL
+(full `https://…` URLs), **Test connection**, and sign in. Settings persist in localStorage.
+To bake defaults instead, set `VITE_PORTAL_API` / `VITE_UDM_API` at build time (e.g. via CI secrets
+— don't commit a real URL to a public repo).
 
 > If you can't add CORS to the portal, host behind a small reverse proxy (Cloudflare Worker,
 > nginx) that adds CORS and forwards to the portal, and point the app at the proxy URL.
-
-## Mock vs live backend
-
-The app runs against an **in-memory mock** by default so it works anywhere (the ISP backend is
-only reachable on their network). Shapes match the recovered DTOs exactly, so no screen changes
-are needed to go live.
-
-- Demo login: any mobile number, OTP **123456**.
-- To hit the real portal (on the ISP network / VPN):
-
-```bash
-VITE_USE_MOCK=false VITE_PORTAL_ORIGIN=http://172.16.0.2 npm run dev
-```
-
-The dev server proxies `/portal/*` and `/udm/*` to `VITE_PORTAL_ORIGIN` to avoid CORS.
-
-You can also flip mock/live and point at a portal **at runtime** via the in-app **⚙︎ Settings**
-panel (origin, API paths, device-search identifier, encryption, plus a **Test connection**
-probe) — no rebuild. Settings persist in localStorage.
 
 ### How the live client works (matches the decompiled app)
 - **Auth:** `Token` apiName → token sent as `Authorization: Bearer` *and* body `tokenAPI`;
@@ -85,7 +74,6 @@ open ⚙︎ → set Live → Test connection, then sign in. Likely first-run adj
 | `src/api/types.ts` | DTOs — exact JSON keys from the decompiled app |
 | `src/api/RouterApi.ts` | backend-agnostic interface the screens use |
 | `src/api/realApi.ts` | live client: PortalApi (`apiName`/`tokenAPI`/Bearer) + UDM/ACS REST + jobs |
-| `src/api/mockApi.ts` | in-memory backend for demo/offline dev |
 | `src/screens/Wifi.tsx` | WiFi settings (GET/SET `wlan`) |
 | `src/screens/Devices.tsx` | connected devices (GET `host` + blacklist job) |
 | `src/screens/Status.tsx` | status + reboot (`tr098Summary`/`wan` + RESTART job) |
