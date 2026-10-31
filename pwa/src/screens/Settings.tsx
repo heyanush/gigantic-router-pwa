@@ -41,17 +41,22 @@ export default function Settings({ onClose }: { onClose: () => void }) {
           <option value="live">Live portal</option>
         </select>
 
-        <label>Portal origin (dev proxy target)</label>
-        <input value={s.portalOrigin} onChange={(e) => set('portalOrigin', e.target.value)} placeholder="http://172.16.0.2" />
+        <div className="banner" style={{ marginTop: 10 }}>
+          Live mode calls the portal directly from the browser. The portal must be <strong>HTTPS</strong>
+          and send <strong>CORS</strong> headers allowing this site's origin.
+        </div>
 
-        <label>Portal API path</label>
-        <input value={s.portalPath} onChange={(e) => set('portalPath', e.target.value)} />
+        <label>Portal API URL (full)</label>
+        <input value={s.portalApi} onChange={(e) => set('portalApi', e.target.value)} placeholder="https://portal.example.com/PortalApi/" />
 
-        <label>UDM / router proxy path</label>
-        <input value={s.udmPath} onChange={(e) => set('udmPath', e.target.value)} />
+        <label>Router / UDM proxy URL (full)</label>
+        <input value={s.udmApi} onChange={(e) => set('udmApi', e.target.value)} placeholder="https://portal.example.com/api/h8UDMProxy.ashx/" />
 
         <label>Router search identifier (blank = use username)</label>
         <input value={s.deviceQueryOverride} onChange={(e) => set('deviceQueryOverride', e.target.value)} placeholder="account / serial" />
+
+        <label>Central API key (optional)</label>
+        <input value={s.centralApiKey} onChange={(e) => set('centralApiKey', e.target.value)} placeholder="only if your API needs it" />
 
         <div className="row" style={{ marginTop: 12 }}>
           <input type="checkbox" style={{ width: 'auto' }} checked={s.encryption} onChange={(e) => set('encryption', e.target.checked)} />

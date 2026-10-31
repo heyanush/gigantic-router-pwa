@@ -3,8 +3,8 @@
 //  - network_util.apiRequestUDM() -> base = UDMURL, header Authorization: Bearer <token>.
 //  - DeviceController.getDeviceList() resolves the ACS device via
 //    api/_search/devices?query=<keyUserName>&sort=id,desc&page=0&size=100, then uses device._id.
-// The QA endpoints live at 172.16.0.2 (ISP network only), so the app defaults to the mock;
-// this is the drop-in for when you're on-net. Flip to live in Settings (or VITE_USE_MOCK=false).
+// The live endpoint is set at runtime (Settings) or build time (VITE_PORTAL_API/VITE_UDM_API);
+// nothing is hardcoded. The app defaults to the mock. Flip to live in Settings.
 
 import { config } from './config';
 import type {
@@ -29,12 +29,14 @@ function rights(data: Record<string, unknown>): AccountRights {
 
 /** One PortalApi call: POST { apiName, tokenAPI, ...params }. Retries once on "Invalid token". */
 async function portal<T>(apiName: string, params: Record<string, unknown>, retry = true): Promise<PortalResponse<T>> {
+  if (!config.portalURL) throw new Error('No portal URL configured — set it in Settings ⚙︎');
   const body = { apiName, tokenAPI: token ?? '', appName: config.appName, ...params };
   const res = await fetch(config.portalURL, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       'X-Requested-With': 'XMLHttpRequest',
+      ...(config.centralApiKey ? { centralApiKey: config.centralApiKey } : {}),
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
     body: JSON.stringify(body),
@@ -66,11 +68,15 @@ function credsToParams(p: LoginParams): Record<string, unknown> {
     Email: p.email ?? '',
     SourceType: config.sourceType,
     DeviceID: 'web',
+    // Only included if configured for your live API.
+    ...(config.systemId ? { systemId: config.systemId } : {}),
+    ...(config.systemPass ? { systemPass: config.systemPass } : {}),
   };
 }
 
 /** One ACS REST call through the UDM proxy (apiRequestUDM equivalent). */
 async function acs<T>(path: string, init?: RequestInit): Promise<T> {
+  if (!config.udmURL) throw new Error('No router (UDM) URL configured — set it in Settings ⚙︎');
   const res = await fetch(config.udmURL + path.replace(/^\//, ''), {
     ...init,
     headers: {
@@ -155,6 +161,7 @@ export const realApi: RouterApi = {
 /** Lightweight connectivity probe for the Settings panel. Does not need a session. */
 export async function pingBackend(): Promise<{ portal: boolean; udm: boolean; detail: string }> {
   const out = { portal: false, udm: false, detail: '' };
+  if (!config.portalURL && !config.udmURL) { out.detail = 'No endpoints configured'; return out; }
   try {
     const r = await fetch(config.portalURL, {
       method: 'POST',

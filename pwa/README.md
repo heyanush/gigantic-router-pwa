@@ -19,6 +19,30 @@ npm run build
 npm run preview
 ```
 
+## Hosting (GitHub Pages)
+
+Pushing to `main` triggers `.github/workflows/deploy.yml`, which builds under the repo subpath
+and deploys to Pages. Enable once: repo **Settings → Pages → Source: GitHub Actions**. The site
+serves in **demo/mock mode** (no backend, no secrets baked in).
+
+Live URL: `https://<user>.github.io/<repo>/`.
+
+### Using it on live devices
+Pages is **static — there is no proxy**, so in production the app calls the portal **directly**
+from the browser. Two backend-side requirements (you control these):
+
+1. **HTTPS** — the portal must be served over HTTPS (Pages is HTTPS; an HTTP portal is blocked as
+   mixed content).
+2. **CORS** — the portal must send `Access-Control-Allow-Origin` for the Pages origin
+   (and allow the `Authorization`, `Content-Type`, `centralApiKey` headers + `POST`/`GET`).
+
+Then on the device: open **⚙︎ Settings → Live**, paste your Portal API URL and UDM proxy URL
+(full `https://…` URLs), **Test connection**, and sign in. Nothing is hardcoded — or bake defaults
+at build time with `VITE_PORTAL_API` / `VITE_UDM_API` (and `VITE_USE_MOCK=false`).
+
+> If you can't add CORS to the portal, host behind a small reverse proxy (Cloudflare Worker,
+> nginx) that adds CORS and forwards to the portal, and point the app at the proxy URL.
+
 ## Mock vs live backend
 
 The app runs against an **in-memory mock** by default so it works anywhere (the ISP backend is

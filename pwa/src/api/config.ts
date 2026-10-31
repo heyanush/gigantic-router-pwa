@@ -1,33 +1,32 @@
-// App config. Base paths point at the dev-server proxy (see vite.config.ts) so calls are
-// same-origin. Values come from runtime settings (localStorage) with env defaults — see settings.ts.
-//
-// Real backend (QA): http://172.16.0.2/qabuild/...  -> proxied under /portal and /udm.
+// App config, derived from runtime settings (localStorage) with env defaults — see settings.ts.
+// No QA endpoints or credentials are hardcoded here; the live endpoint is set on-device in
+// Settings, or baked at build time via VITE_PORTAL_API / VITE_UDM_API.
 
 import { getSettings } from './settings';
 
 const s = getSettings();
 
 export const config = {
-  // PortalApi handler (account, token, sessions, CPE password). Single endpoint; dispatch via `apiName`.
-  portalURL: s.portalPath,
-  regenerateTokenPath: s.portalPath,
-  // UDM proxy -> GenieACS-style TR-069 ACS (router control). REST + jobs. Same Bearer token as PortalApi.
-  udmURL: s.udmPath,
+  // PortalApi handler (account, token, sessions, CPE password). Full URL; dispatch via `apiName`.
+  portalURL: s.portalApi,
+  regenerateTokenPath: s.portalApi,
+  // UDM proxy -> GenieACS-style TR-069 ACS (router control). Same Bearer token as PortalApi.
+  udmURL: s.udmApi,
 
   appName: 'gigantic',
-  systemId: 'AndroidAppAdmin',
-  systemPass: 'AndroidAppPass',
-  centralApiKey: '123456',
-  // The app ships encryption:false in QA. If prod enforces `enc`, that must be handled
-  // server-side for a web client — see PWA_API_CONTRACT.md (the static key must NOT ship in-browser).
+  // Optional app-level creds — blank unless configured. Only sent if present.
+  systemId: s.systemId,
+  systemPass: s.systemPass,
+  centralApiKey: s.centralApiKey,
+  // If the live portal enforces `enc`, terminate it server-side — never ship a key to the browser.
   encryption: s.encryption,
   lengthForOTP: 6,
   sourceType: 'Customer',
   deviceQueryOverride: s.deviceQueryOverride,
 } as const;
 
-// Use the in-memory mock backend instead of real HTTP. Default ON so the app runs anywhere
-// (the QA backend is only reachable on the ISP network). Toggle in Settings or via VITE_USE_MOCK.
+// In-memory mock backend instead of real HTTP. Default ON so the public demo runs with no
+// backend. Toggle in Settings or via VITE_USE_MOCK.
 export const USE_MOCK = s.useMock;
 
 export type LoginType =
