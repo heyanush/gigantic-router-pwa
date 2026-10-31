@@ -22,3 +22,4 @@ PWA_API_CONTRACT.md
 recovered_dtos.txt
 recovered_operations.txt
 recovered_udm_dtos.md
+*.tsbuildinfo
