@@ -32,9 +32,14 @@ jobs:
       - run: npm ci
 
       # Build under the repo subpath so asset URLs resolve on Pages.
+      # Portal endpoints are baked from repo secrets (kept out of source). Note: a frontend
+      # bundle is public, so the baked URLs are visible in the shipped JS — never bake credentials.
       - run: npm run build
         env:
           VITE_BASE: /${{ github.event.repository.name }}/
+          VITE_PORTAL_API: ${{ secrets.PORTAL_API }}
+          VITE_UDM_API: ${{ secrets.UDM_API }}
+          VITE_CENTRAL_API_KEY: ${{ secrets.CENTRAL_API_KEY }}
 
       # SPA deep-link fallback: Pages serves 404.html for unknown paths -> boot the app.
       - run: cp dist/index.html dist/404.html
